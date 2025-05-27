@@ -10,18 +10,29 @@ load_dotenv()
 
 
 class WorldBankScraper:
+    
+    """
+    Scraper para obtener y consultar la lista negra del Banco Mundial (Entidades inhabilitadas).
 
-    BANK_URL = os.getenv("FONT_URL_WORLD_BANK")
-    SELECTOR_BODY_TABLE_BANK = os.getenv("SELECTOR_BODY_TABLE_BANK")
-    table: pd.DataFrame = pd.DataFrame()
-    last_fetched: datetime | None = None
-    period_refresh = timedelta(days=3)
+    Utiliza Playwright para cargar dinámicamente la página con JavaScript,
+    y BeautifulSoup para extraer la tabla HTML de empresas sancionadas.
+
+    La tabla se refresca automáticamente cada 3 días (Producción).
+    """
+
+    BANK_URL = os.getenv("FONT_URL_WORLD_BANK") # URL fuente de la tabla del World Bank
+    SELECTOR_BODY_TABLE_BANK = os.getenv("SELECTOR_BODY_TABLE_BANK") # Selector CSS de la tabla
+    table: pd.DataFrame = pd.DataFrame() # DataFrame con la tabla procesada
+    last_fetched: datetime | None = None # Fecha y hora de última descarga
+
+    period_refresh = timedelta(days=3) # Intervalo de actualización de datos
 
     async def fetch_html(
         self, url: str, params: dict | None = None, headers: dict | None = None
     ) -> BeautifulSoup:
+        
         """
-        Realiza una petición GET asíncrona a `url` con params/headers,
+        Realiza una petición GET asíncrona a 'url' con params/headers,
         lanza excepción si el status no es 200,
         y devuelve un objeto BeautifulSoup del HTML recibido.
         """
@@ -36,13 +47,19 @@ class WorldBankScraper:
             # Inspección para extracción del objeto beatiful soup de la tabla
             await page.wait_for_selector(self.SELECTOR_BODY_TABLE_BANK)
 
-            # captura html ya renderizado por javascript, completamente cargado
+            # Captura html ya renderizado por javascript, completamente cargado
             loaded_html = await page.content()
             await browser.close()
 
             return BeautifulSoup(loaded_html, "lxml")
 
     async def refresh_if_needed(self):
+        """
+        Refresca la tabla del World Bank si ha pasado el período de actualización.
+
+        Descarga el HTML, extrae las filas y crea un DataFrame.
+        Actualiza 'self.last_fetched'.
+        """
 
         current_time = datetime.utcnow()
 
@@ -54,9 +71,9 @@ class WorldBankScraper:
             # Extraer formateado en el tipo Dataframe la tabla completa
             records = []
             for row in rows:
-                # Cada td[role="gridcell"] es una celda de tu tabla
+                # Cada td[role="gridcell"] es una celda de la tabla
                 cols = row.select('td[role="gridcell"]')
-                # Extraes el texto interior de cada <td>
+                # Extraer texto dentro de cada <td>
                 values = [td.get_text(strip=True).upper() for td in cols]
                 records.append(values)
 
@@ -75,8 +92,18 @@ class WorldBankScraper:
             self.last_fetched = current_time
 
     async def search(self, query: str):
+        """
+        Busca coincidencias del texto 'query' en toda la tabla.
+
+        Args:
+            query (str): Texto a buscar en los campos del DataFrame.
+
+        Returns:
+            list[dict]: Lista de registros donde se encontró coincidencia.
+        """
         # Garantizamos datos actualizados
         await self.refresh_if_needed()
+        
         # Filtro y máscara por consulta
         bool_df = self.table.astype(str).apply(
             lambda col: col.str.contains(query.upper(), case=False, na=False)

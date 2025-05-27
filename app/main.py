@@ -1,11 +1,23 @@
 from typing import List
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI, HTTPException
 
 from app.models.records import BlackRecords
 from app.scrapers.world_bank import WorldBankScraper
 
-app = FastAPI(title="Wolrd Bank Black-List API")
+app = FastAPI(title="World Bank Black-List API")
+
+# Middleware CORS para permitir peticiones desde cualquier origen.
+# En producción se recomienda restringir los orígenes permitidos (allow_origins) por seguridad.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  #  Permitir solicitudes desde el frontend en 5174
+    allow_credentials=True,
+    allow_methods=["*"],  #  Permitir todos los métodos (GET, POST, etc.)
+    allow_headers=["*"],  #  Permitir todos los headers
+)
+
 
 # Única instancia del scraper en memoria
 scraper = WorldBankScraper()
@@ -28,9 +40,15 @@ async def search_worldbank(
     name: str, bank_scraper: WorldBankScraper = Depends(get_scraper)
 ):
     """
-    Busca 'name' en la lista de empresas inhabilitadas del World Bank.
-    La tabla se refresca cada 3 horas según la web de world bank.
+    Busca un nombre en la lista negra del Banco Mundial.
+
+    Parámetros:
+    - name (str): Nombre o fragmento de nombre a buscar en la lista negra del Banco Mundial.
+
+    Retorna:
+    - Lista de coincidencias con los registros encontrados.
     """
+
     try:
         filter_data = await bank_scraper.search(name)
     except Exception as e:
@@ -42,6 +60,11 @@ async def search_worldbank(
 # Endpoint de status para validar actividad del servicio
 @app.get("/health")
 def health():
+    """
+    Endpoint para validar que el servicio está activo.
+
+    Usado para debbuging.
+    """
     return {
         "status": "ok",
         "last_fetched": (
@@ -54,10 +77,9 @@ def health():
 @app.get("/debug/raw")
 async def debug_raw(sb: WorldBankScraper = Depends(get_scraper)):
     """
-    Devuelve la tabla de World Bank en formato JSON:
-      - index: lista de índices
-      - columns: lista de nombres de campos
-      - data: lista de registros (filas)
+    Retorna la tabla original obtenida del Banco Mundial en formato JSON.
+
+    Este endpoint fue usado para validación y debugging.
     """
     # Se valida que la tabla esté cargada
     await sb.refresh_if_needed()
