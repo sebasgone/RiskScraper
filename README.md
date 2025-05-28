@@ -25,25 +25,32 @@ API desarrollada con FastAPI para consultar la lista de empresas inhabilitadas p
 ## ⚙️ Instalación
 
 bash
-# Clona el repositorio
+### Clona el repositorio
+```bash
 git clone https://github.com/sebasgone/RiskScraper.git
-
-# Crea un entorno virtual
+```
+### Crea un entorno virtual
+```bash
 python -m venv venv
 source venv/bin/activate  
-
-# Instala dependencias
+```
+### Instala dependencias
+```bash
 pip install -r requirements.txt
-
-# Instala browsers para Playwright
+```
+### Instala browsers para Playwright
+```bash
 playwright install
-
-# Ejecución local
+```
+### Ejecución local
+```bash
 uvicorn main:app --reload
+```bash
 
-# Documentación interactiva de API
-Swagger UI: http://localhost:8000/docs
-ReDoc: http://localhost:8000/redoc
+## Documentación interactiva de API
+
+**Swagger UI:** http://localhost:8000/docs
+**ReDoc:** http://localhost:8000/redoc
 
 ## 📡 Endpoints principales
 
