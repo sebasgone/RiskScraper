@@ -72,5 +72,7 @@ uvicorn main:app --reload
 ```
 # ✍️ Autor
 Sebastián García Tolentino
+
 AI Developer
+
 https://www.linkedin.com/in/sebasgone21/
