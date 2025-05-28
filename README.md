@@ -24,7 +24,6 @@ API desarrollada con FastAPI para consultar la lista de empresas inhabilitadas p
 
 ## ⚙️ Instalación
 
-bash
 ### Clona el repositorio
 ```bash
 git clone https://github.com/sebasgone/RiskScraper.git
@@ -45,7 +44,7 @@ playwright install
 ### Ejecución local
 ```bash
 uvicorn main:app --reload
-```bash
+```
 
 ## Documentación interactiva de API
 
@@ -54,9 +53,9 @@ uvicorn main:app --reload
 
 ## 📡 Endpoints principales
 
-- `GET /search/worldbank`: Busca por nombre en la lista negra del World Bank
-- `GET /health`: Verifica estado y fecha de última descarga
-- `GET /debug/raw`: Devuelve la tabla completa en formato JSON (debug)
+- 'GET /search/worldbank': Busca por nombre en la lista negra del World Bank
+- 'GET /health': Verifica estado y fecha de última descarga
+- 'GET /debug/raw': Devuelve la tabla completa en formato JSON (debug)
 
 ## 📁 Estructura del proyecto
 
