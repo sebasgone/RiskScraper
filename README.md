@@ -48,8 +48,8 @@ uvicorn main:app --reload
 
 ## Documentación interactiva de API
 
-**Swagger UI:** http://localhost:8000/docs
-**ReDoc:** http://localhost:8000/redoc
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
 
 ## 📡 Endpoints principales
 
